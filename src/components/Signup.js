@@ -1,17 +1,25 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { auth } from "../utils/firebase.config";
 
 function Signup() {
   const registerEmail = useRef();
   const registerPassword = useRef();
+  const [displayName, setDisplayName] = useState("");
 
   const handleRegister = (e) => {
     e.preventDefault();
     try {
-      auth.createUserWithEmailAndPassword(
-        registerEmail.current.value,
-        registerPassword.current.value
-      );
+      auth
+        .createUserWithEmailAndPassword(
+          registerEmail.current.value,
+          registerPassword.current.value
+        )
+        .then(async (user) => {
+          await user.user.updateProfile({
+            displayName,
+          });
+          window.location.reload();
+        });
     } catch (error) {
       console.log(error);
     }
@@ -25,7 +33,12 @@ function Signup() {
             handleRegister(e);
           }}
         >
-          <input type="text" placeholder="pseudo" />
+          <input
+            type="text"
+            placeholder="pseudo"
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
+
           <input
             type="email"
             placeholder="Email"
